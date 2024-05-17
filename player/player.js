@@ -273,10 +273,9 @@ async function main() {
     let totalScore = 0;
 
     wss.on("message", async (data) => {
-
         screen.destroy()
         if (data == "start") {
-            let correct = false;
+            correct = false;
             const question = QUESTIONS[i];
             if (!question) {
               if (totalScore > 200) {
