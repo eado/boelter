@@ -1,0 +1,4 @@
+Certificate authorities help us delegate trust to others. In project 2, the
+server sends over their public key AND a certificate of their public key signed
+by a certificate authority. Suppose that another version of project 2 let the
+server send over a self-signed certificate. What problems would we face?

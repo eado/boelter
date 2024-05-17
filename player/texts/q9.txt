@@ -1,0 +1,13 @@
+Inspect this C code that uses the cryptographic primitives from last discussion
+to generate a shared secret on the server side:
+```
+// Assume public key of client is loaded
+char* client_cert;
+int length;
+
+load_private_key("priv_key.der");
+
+derive_secret();
+```
+There's a line missing before `derive_secret`. Write out that line.
+(Use no spaces and remember the semicolon.)

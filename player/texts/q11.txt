@@ -1,0 +1,3 @@
+In project 2, you're expected to exchange and sign nonces (large random
+numbers) as part of the handshake. Suppose another version of project 2 didn't
+exchange nonces. What risks may occur?

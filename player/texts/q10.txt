@@ -1,0 +1,12 @@
+Inspect this C code that uses the cryptographic primitives from last discussion
+to generate encrypt some data:
+```
+// Assume secret has already been derived
+char data[] = "Hello world!";
+char cipher[255];
+size_t cipher_size = encrypt_data(data, sizeof(data), cipher);
+```
+This code is supposed to encrypt "Hello world!", but there's a fatal flaw. What
+parameter is missing? 
+(Don't write out the entire function, just the missing parameter. Hint: it's just
+two lowercase characters.)
