@@ -1,0 +1,1 @@
+How many subnets can we create if we subnet the network 203.128.0.0/24 into /27 subnets?

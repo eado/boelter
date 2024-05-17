@@ -1,0 +1,1 @@
+Which of the following are not necessary for a configured IP host to be able to send and receive data on the Internet?

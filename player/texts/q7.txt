@@ -1,0 +1,1 @@
+Given a /26 subnet, how many usable addresses are there?

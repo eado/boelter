@@ -1,0 +1,7 @@
+Assume Host A and Host B are on a private network communicating through IP tunneling. A has private IP 172.16.45.90, B has private IP 168.20.30.40, and routers R1 and R2 have public IPs 87.204.189.33 and 203.128.56.77, respectively. At position 3, what are the source and destination addresses for a packet sent from A to B (src; dest)?
+
+	 Host A           Router R1            Router R2           Host B
+  _____            _______              _______             _____
+ |     |          |       |            |       |           |     |
+ | H A |----1-----|  R1   |-----2------|  R2   |-----3-----| H B |
+ |_____|          |_______|            |_______|           |_____|

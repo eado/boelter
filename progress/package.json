@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}
