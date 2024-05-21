@@ -1,5 +1,5 @@
 # boelter
-A social deduction game for CS 118
+A mini pop quiz game for CS 118
 
 ## Requirements
 Docker >=v24  
@@ -12,8 +12,6 @@ Run `start.bash`.
 To change the number of players (default 10, max 99), 
 add the option `-n <num>` where `<num>` is the number of players you want to
 instantiate.   
-To change the number of rooms, add the option `-m <num>` where
-`num` is the number of rooms you want to instantiate. 
 
 This will:
 - Create n + 1 Docker containers with the name `player<i>`.
@@ -21,14 +19,13 @@ This will:
   - Each will have ssh open on port `22<i:2>` (for example, `player1` has port
     `2201` open).
   - These are helpdesk servers that players use as a starting point.
-  - Note: every player with a multiple of 4 is considered an impostor.
-- Create 3 target server Docker containers. These are servers that players try
-  to access. 
-  - `clk`: basics of connecting
-  - `rfc`: finding the path
-  - `roundtrip`: serving for the first time
 - Create a progress server to track players' progression. 
-  - Each target sends a message to the progress server whenever they're accessed
-    by a certain IP. 
-  - It's also open on port 80 to show a website with progress bars for each
-    player.
+  - Each player connects to the progress server via WebSockets
+  - The progress server pings the players whenever there's a new round
+  - Based on the elapsed time, the progress server awards points when a player
+    submits an answer
+
+# Questions
+All the questions are available at `player/questions.json`. The `file`
+attribute points to a file in the `player/texts` directory for the actual
+question text. 
