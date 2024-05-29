@@ -4,6 +4,9 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
+const dotenv = require('dotenv');
+dotenv.config({ path: '../.env' });
+
 
 function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

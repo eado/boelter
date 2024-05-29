@@ -3,6 +3,10 @@ const blessed = require("blessed");
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 
+const dotenv = require('dotenv');
+dotenv.config({ path: '../.env' });
+
+
 function getPromiseFromEvent(item, event) {
   return new Promise((resolve) => {
     const listener = (msg) => {
@@ -26,8 +30,7 @@ async function  waitForOpenSocket(socket) {
   });
 }
 
-const SECRETTOKEN =
-  "3tefU4UvEdNSMpZLcEab5nBQDZ8CbU7M9LzvRwSYP6WaBBixtYp9GRdzzjxWjp6k";
+const SECRETTOKEN = process.env.JWT_TOKEN
 
 const WELCOME = fs.readFileSync("texts/boelter.txt").toString();
 const INSTRUCTIONS = fs.readFileSync("texts/instructions.txt").toString();
@@ -524,7 +527,7 @@ async function main() {
     );
   } while (!valForm(names));
 
-  // console.log("Proof of submission: ", jwt.sign({details: names, t: Date.now() }, SECRETTOKEN))
+  console.log("Proof of submission: ", jwt.sign({k: 1, d: names, t: Date.now() }, SECRETTOKEN))
 
   await timeout(100);
 
@@ -584,6 +587,7 @@ async function main() {
     await timeout(1000);
 
     if (msg == "team_create_success") {
+      console.log("Team token (can be used to reconnect if disconnected):", jwt.sign({k: 0, t: teamName}))
       break;
     } else {
       teamName = await invalidTeamNameScreen("Your preferred name was already taken in our system. Please use another preferred name.");
