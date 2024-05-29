@@ -1,5 +1,5 @@
 # boelter
-A mini pop quiz game for CS 118
+A mini pop quiz game for CS 33, originally created by https://github.com/eado for CS 118, updated and modified by https://github.com/burturt
 
 ## Requirements
 Docker >=v24  
