@@ -30,7 +30,7 @@ async function  waitForOpenSocket(socket) {
   });
 }
 
-const SECRETTOKEN = process.env.JWT_TOKEN
+const SECRETTOKEN = process.env["JWT_TOKEN"]
 
 const WELCOME = fs.readFileSync("texts/boelter.txt").toString();
 const INSTRUCTIONS = fs.readFileSync("texts/instructions.txt").toString();
@@ -157,7 +157,7 @@ function createForm(title, text, fieldNames) {
 
     // Handle form submission
     form.on("submit", function (data) {
-      console.log("Form data:", data);
+      // console.log("Form data:", data);
       res(data);
       screen.destroy();
     });
@@ -238,7 +238,7 @@ function createTitleScreen(
         width: "25%",
         height: "25%",
         content:
-          "Is this your final answer? Press enter to submit and q to go back (you might have to hit twice).",
+          "Is this your final answer? Press enter to submit and escape to go back.",
         tags: true,
         border: {
           type: "line",
@@ -449,7 +449,11 @@ function createTitleScreen(
       } else if (key.name === "down" || key.name === "right") {
         focusedIndex = (focusedIndex + 1) % buttons.length;
       }
-      buttons[focusedIndex].focus();
+
+      const toFocus = buttons[focusedIndex];
+      if (toFocus !== undefined) {
+        toFocus.focus();
+      }
       screen.render();
     });
 
@@ -549,7 +553,7 @@ async function main() {
       undefined, 0, true, true
     );
   }
-  const wss = new ws.WebSocket("ws://localhost:8081");
+  const wss = new ws.WebSocket("ws://127.0.0.1:8081");
   await waitForOpenSocket(wss);
   let validTeam = false;
 
@@ -564,8 +568,8 @@ async function main() {
 
   while (!validTeam) {
     teamName = teamName.toString().trim();
-    console.log("Name:", teamName);
-    console.log("Length:", teamName.length);
+    //console.log("Name:", teamName);
+    //console.log("Length:", teamName.length);
 
     if (teamName.length < 4 || teamName.length > 20) {
       teamName = await invalidTeamNameScreen("Preferred names must be between 4 and 20 characters.");
@@ -579,15 +583,15 @@ async function main() {
     console.log("Connecting");
     let msg = getPromiseFromEvent(wss, "message");
     wss.send(`create ${teamName}`);
-    console.log("a");
+    //console.log("a");
     msg = await (await msg).data
-    console.log("msg:", msg);
+    //console.log("msg:", msg);
 
     msg = msg.toString();
     await timeout(1000);
 
     if (msg == "team_create_success") {
-      console.log("Team token (can be used to reconnect if disconnected):", jwt.sign({k: 0, t: teamName}))
+      console.log("Team token (can be used to reconnect if disconnected):", jwt.sign({k: 0, t: teamName}, SECRETTOKEN))
       break;
     } else {
       teamName = await invalidTeamNameScreen("Your preferred name was already taken in our system. Please use another preferred name.");

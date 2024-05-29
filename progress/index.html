@@ -51,6 +51,20 @@
                 document.getElementById("main").appendChild(el);
               }
             }
+            // Sort elements on page
+            const elms = document.querySelectorAll("div.progress");
+            const parent = document.querySelector(".container");
+            let elmsArr = Array.from(elms);
+            elmsArr.splice(0, 1);
+            elmsArr.sort((a, b) => {
+              const aScore = Number(a.querySelector("h1").innerText);
+              const bScore = Number(b.querySelector("h1").innerText);
+              return bScore - aScore;
+            });
+            console.log(elmsArr);
+            elmsArr.forEach((e) => {
+              parent.appendChild(e);
+            });
           });
         });
       }, 2000);

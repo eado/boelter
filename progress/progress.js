@@ -4,7 +4,8 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const dotenv = require('dotenv');
+import dotenv from "dotenv";
+
 dotenv.config({ path: '../.env' });
 
 
@@ -28,7 +29,10 @@ server.get("/", (_, res) => {
 server.get("/progress", (_, res) => {
   const progress = {};
   for (let player in players) {
-    progress[player] = players[player].score;
+    if (players[player].visible) {
+      progress[player] = players[player].score;
+
+    }
   }
 
   res.send(progress);
@@ -250,11 +254,11 @@ function createTitleScreen(
       }
       const focused = screen.focused;
       if (focused.submit) {
-        console.log("submit", focused.submit.toString());
+        //console.log("submit", focused.submit.toString());
         focused.submit();
       } 
       else if (focused.press) {
-        console.log("press");
+        //console.log("press");
         focused.press();
       } 
     });
@@ -282,14 +286,14 @@ wss.on("connection", function connection(ws, req) {
   //   screen.render();
   // }
   screen.render();
-  console.log("new connection");
+  //console.log("new connection");
   let team = undefined;
 
   ws.on("message", function message(data) {
     data = data.toString();
     const msgType = data.substring(0, data.indexOf(" "));
     const content = data.substring(data.indexOf(" ") + 1);
-    console.log("MsgType:", msgType, "Content:", content);
+    //console.log("MsgType:", msgType, "Content:", content);
     if (msgType === "answer") {
       if (currentState == ANSWER) {
         const score = Number(content);
@@ -298,7 +302,7 @@ wss.on("connection", function connection(ws, req) {
         screen.render();
       }
     } else if (msgType === "create") {
-      console.log("team");
+      //console.log("team");
       const teamName = content.trim();
       if (teamName in players) {
         ws.send("team_taken");
@@ -315,13 +319,17 @@ wss.on("connection", function connection(ws, req) {
         socket: ws,
         score: 0,
         updateScore: 0,
+        visible: true
       };
       team = teamName;
-      console.log("send");
+      //console.log("send");
 
       ws.send("team_create_success");
     
     }
+  });
+  ws.on("close", () => {
+    players[team].visible = false;
   });
 });
 
