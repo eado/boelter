@@ -3,34 +3,32 @@ const blessed = require("blessed");
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 
-const dotenv = require('dotenv');
-dotenv.config({ path: '../.env' });
-
+const dotenv = require("dotenv");
+dotenv.config({ path: "../.env" });
 
 function getPromiseFromEvent(item, event) {
   return new Promise((resolve) => {
     const listener = (msg) => {
       item.removeEventListener(event, listener);
       resolve(msg);
-    }
+    };
     item.addEventListener(event, listener);
-  })
+  });
 }
 
-
-async function  waitForOpenSocket(socket) {
+async function waitForOpenSocket(socket) {
   return new Promise((resolve) => {
     if (socket.readyState !== socket.OPEN) {
       socket.addEventListener("open", (_) => {
         resolve();
-      })
+      });
     } else {
       resolve();
     }
   });
 }
 
-const SECRETTOKEN = process.env["JWT_TOKEN"]
+const SECRETTOKEN = process.env["JWT_TOKEN"];
 
 const WELCOME = fs.readFileSync("texts/boelter.txt").toString();
 const INSTRUCTIONS = fs.readFileSync("texts/instructions.txt").toString();
@@ -93,9 +91,8 @@ function createForm(title, text, fieldNames) {
         border: {
           fg: "blue",
         },
-      }
+      },
     });
-
 
     let fields = [];
     // Create text input fields for each field name
@@ -125,32 +122,32 @@ function createForm(title, text, fieldNames) {
           fg: "black",
         },
         vi: false,
-        keys: false
+        keys: false,
       });
       fields.push(thisField);
     });
 
-        // Create a submit button
-        const submitButton = blessed.button({
-          parent: form,
-          mouse: true,
-          keys: true,
-          shrink: true,
-          padding: {
-            left: 1,
-            right: 1,
-          },
-          left: "center",
-          bottom: 1,
-          name: "submit",
-          content: "Submit",
-          style: {
-            bg: "blue",
-            focus: {
-              bg: "green",
-            },
-          },
-        });
+    // Create a submit button
+    const submitButton = blessed.button({
+      parent: form,
+      mouse: true,
+      keys: true,
+      shrink: true,
+      padding: {
+        left: 1,
+        right: 1,
+      },
+      left: "center",
+      bottom: 1,
+      name: "submit",
+      content: "Submit",
+      style: {
+        bg: "blue",
+        focus: {
+          bg: "green",
+        },
+      },
+    });
 
     form.focusNext();
     // fields[0].focus();
@@ -176,11 +173,10 @@ function createForm(title, text, fieldNames) {
     screen.key("enter", (ch, key) => {
       form.submit();
       return false;
-    })
+    });
 
     // Render the screen
     screen.render();
-
   });
 }
 
@@ -285,12 +281,12 @@ function createTitleScreen(
 
     const form = blessed.form({
       parent: screen,
-      name: 'form',
+      name: "form",
       top: 0,
       right: 0,
       width: "49%",
-      height: "100%"
-    })
+      height: "100%",
+    });
 
     // Create buttons dynamically
     if (buttonLabels)
@@ -352,7 +348,7 @@ function createTitleScreen(
 
       buttons.push(textBox);
 
-    // Add a keypress event listener to the submit button to trigger form submission
+      // Add a keypress event listener to the submit button to trigger form submission
       textBox.on("submit", (text) => {
         if (sure) {
           ans = text;
@@ -363,7 +359,7 @@ function createTitleScreen(
         }
       });
 
-          // Stop users from exiting screen
+      // Stop users from exiting screen
       // textBox.key('escape', (ch, key) => {
       //   console.log("escape textbox");
       //   // Prevent the default behavior of the escape key.
@@ -434,11 +430,10 @@ function createTitleScreen(
       if (focused.submit) {
         // console.log("submit", focused.submit.toString());
         focused.submit();
-      } 
-      else if (focused.press) {
+      } else if (focused.press) {
         // console.log("press");
         focused.press();
-      } 
+      }
     });
 
     // Allow using arrow keys to switch between buttons
@@ -456,8 +451,6 @@ function createTitleScreen(
       }
       screen.render();
     });
-
-
 
     screen.render();
   });
@@ -481,7 +474,6 @@ function shuffle(array) {
 }
 
 async function main() {
-
   const valForm = function (names) {
     for (key in names) {
       // console.log(key);
@@ -531,7 +523,10 @@ async function main() {
     );
   } while (!valForm(names));
 
-  console.log("Proof of submission: ", jwt.sign({k: 1, d: names }, SECRETTOKEN))
+  console.log(
+    "Proof of submission: ",
+    jwt.sign({ k: 1, d: names }, SECRETTOKEN),
+  );
 
   await timeout(100);
 
@@ -541,18 +536,19 @@ async function main() {
     undefined,
     null,
     true,
-    true
+    true,
   );
 
-
-
-  const invalidTeamNameScreen = async function(e) {
+  const invalidTeamNameScreen = async function (e) {
     return await createTitleScreen(
       "Preferred Name",
       `Error: ${e}\n\nWhat is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.`,
-      undefined, 0, true, true
+      undefined,
+      0,
+      true,
+      true,
     );
-  }
+  };
   const wss = new ws.WebSocket("ws://127.0.0.1:8081");
   await waitForOpenSocket(wss);
   let validTeam = false;
@@ -565,40 +561,47 @@ async function main() {
   //   }
   // }
 
-
   while (!validTeam) {
     teamName = teamName.toString().trim();
     //console.log("Name:", teamName);
     //console.log("Length:", teamName.length);
 
     if (teamName.length < 4 || teamName.length > 20) {
-      teamName = await invalidTeamNameScreen("Preferred names must be between 4 and 20 characters.");
+      teamName = await invalidTeamNameScreen(
+        "Preferred names must be between 4 and 20 characters.",
+      );
 
       continue;
     }
     if (!teamName.match(/^[a-zA-Z0-9]+$/)) {
-      teamName = await invalidTeamNameScreen("Preferred names must only contain alphanumeric characters and spaces.");
+      teamName = await invalidTeamNameScreen(
+        "Preferred names must only contain alphanumeric characters and spaces.",
+      );
       continue;
     }
     console.log("Connecting");
     let msg = getPromiseFromEvent(wss, "message");
     wss.send(`create ${teamName}`);
     //console.log("a");
-    msg = await (await msg).data
+    msg = await (await msg).data;
     //console.log("msg:", msg);
 
     msg = msg.toString();
     await timeout(1000);
 
     if (msg == "team_create_success") {
-      console.log("Team token (can be used to reconnect if disconnected):", jwt.sign({k: 0, t: teamName}, SECRETTOKEN))
+      console.log(
+        "Team token (can be used to reconnect if disconnected):",
+        jwt.sign({ k: 0, t: teamName }, SECRETTOKEN),
+      );
       break;
     } else {
-      teamName = await invalidTeamNameScreen("Your preferred name was already taken in our system. Please use another preferred name.");
+      teamName = await invalidTeamNameScreen(
+        "Your preferred name was already taken in our system. Please use another preferred name.",
+      );
       continue;
     }
   }
-
 
   let i = 0;
   let correct = false;
@@ -611,7 +614,6 @@ async function main() {
 
   wss.on("message", async (data) => {
     if ("data" === "team_taken") {
-
     }
     screen.destroy();
     if (data == "start") {

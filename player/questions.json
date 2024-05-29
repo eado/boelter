@@ -1,122 +1,122 @@
 [
-    {
-        "file": "q1.txt",
-        "title": "IP Tunneling",
-        "options": [
-            "172.16.45.90; 87.204.189.33",
-            "172.16.45.90; 168.20.30.40",
-            "87.204.189.33; 203.128.56.77",
-            "87.204.189.33; 168.20.30.40"
-        ],
-        "correct": 1,
-        "text": false
-    },
-    {
-        "file": "q2.txt",
-        "title": "IP Tunneling",
-        "options": [
-            "172.16.45.90; 87.204.189.33",
-            "172.16.45.90; 168.20.30.40",
-            "87.204.189.33; 203.128.56.77",
-            "87.204.189.33; 168.20.30.40"
-        ],
-        "correct": 2,
-        "text": false
-    },
-    {
-        "file": "q3.txt",
-        "title": "IP Tunneling",
-        "options": [
-            "172.16.45.90; 87.204.189.33",
-            "172.16.45.90; 168.20.30.40",
-            "87.204.189.33; 203.128.56.77",
-            "87.204.189.33; 168.20.30.40"
-        ],
-        "correct": 1,
-        "text": false
-    },
-    {
-        "file": "q4.txt",
-        "title": "I love VPNs",
-        "options": [
-            "None, all are necessary for VPN to function",
-            "IP Tunneling",
-            "Dynamic Host Configuration Protocol (DHCP)",
-            "Encryption"
-        ],
-        "correct": 2,
-        "text": false
-    },
-    {
-        "file": "q5.txt",
-        "title": "Masks and masks",
-        "options": [
-            "Subnet mask",
-            "Default router IP address",
-            "DNS resolver IP address",
-            "None of the above"
-        ],
-        "correct": 3,
-        "text": false
-    },
-    {
-        "file": "q6.txt",
-        "title": "Masks and masks",
-        "correct": "8",
-        "text": true
-    },
-    {
-        "file": "q7.txt",
-        "title": "Who's my favorite subnet?",
-        "correct": "62",
-        "text": true
-    },
-    {
-        "file": "q8.txt",
-        "title": "Who's my favorite subnet?",
-        "options": [
-            "DHCP runs over UDP",
-            "The destination IPv4 for DHCP “discover” is 255.255.255.255",
-            "The destination IPv4 for DHCP “offer” is 0.0.0.0",
-            "None of the above"
-        ],
-        "correct": 2,
-        "text": false
-    },
-    {
-        "file": "q9.txt",
-        "title": "Sharing secrets?",
-        "correct": "load_peer_public_key(client_cert,length);",
-        "text": true
-    },
-    {
-        "file": "q10.txt",
-        "title": "Encryption is cool",
-        "correct": "iv",
-        "text": true
-    },
-    {
-        "file": "q11.txt",
-        "title": "Make sure to handshake with everyone",
-        "options": [
-            "We lose the ability to use ciphers since we use them as an IV for CBC",
-            "It helps us generate pseudorandom keys",
-            "There's nothing stopping an attacker from repeating the handshake",
-            "There's literally no point to nonces"
-        ],
-        "correct": 2,
-        "text": false
-    },
-    {
-        "file": "q12.txt",
-        "title": "Trusting all authority?",
-        "options": [
-            "We lose the ability to use elliptic curves since we don't have a public key to use",
-            "If we don't sign with a certificate authority, we can't encrypt our data",
-            "Since the client also self-signs, there's no problem for the server to do so as well",
-            "How does the client know that the server really is the server?"
-        ],
-        "correct": 3,
-        "text": false
-    }
+  {
+    "file": "q1.txt",
+    "title": "IP Tunneling",
+    "options": [
+      "172.16.45.90; 87.204.189.33",
+      "172.16.45.90; 168.20.30.40",
+      "87.204.189.33; 203.128.56.77",
+      "87.204.189.33; 168.20.30.40"
+    ],
+    "correct": 1,
+    "text": false
+  },
+  {
+    "file": "q2.txt",
+    "title": "IP Tunneling",
+    "options": [
+      "172.16.45.90; 87.204.189.33",
+      "172.16.45.90; 168.20.30.40",
+      "87.204.189.33; 203.128.56.77",
+      "87.204.189.33; 168.20.30.40"
+    ],
+    "correct": 2,
+    "text": false
+  },
+  {
+    "file": "q3.txt",
+    "title": "IP Tunneling",
+    "options": [
+      "172.16.45.90; 87.204.189.33",
+      "172.16.45.90; 168.20.30.40",
+      "87.204.189.33; 203.128.56.77",
+      "87.204.189.33; 168.20.30.40"
+    ],
+    "correct": 1,
+    "text": false
+  },
+  {
+    "file": "q4.txt",
+    "title": "I love VPNs",
+    "options": [
+      "None, all are necessary for VPN to function",
+      "IP Tunneling",
+      "Dynamic Host Configuration Protocol (DHCP)",
+      "Encryption"
+    ],
+    "correct": 2,
+    "text": false
+  },
+  {
+    "file": "q5.txt",
+    "title": "Masks and masks",
+    "options": [
+      "Subnet mask",
+      "Default router IP address",
+      "DNS resolver IP address",
+      "None of the above"
+    ],
+    "correct": 3,
+    "text": false
+  },
+  {
+    "file": "q6.txt",
+    "title": "Masks and masks",
+    "correct": "8",
+    "text": true
+  },
+  {
+    "file": "q7.txt",
+    "title": "Who's my favorite subnet?",
+    "correct": "62",
+    "text": true
+  },
+  {
+    "file": "q8.txt",
+    "title": "Who's my favorite subnet?",
+    "options": [
+      "DHCP runs over UDP",
+      "The destination IPv4 for DHCP “discover” is 255.255.255.255",
+      "The destination IPv4 for DHCP “offer” is 0.0.0.0",
+      "None of the above"
+    ],
+    "correct": 2,
+    "text": false
+  },
+  {
+    "file": "q9.txt",
+    "title": "Sharing secrets?",
+    "correct": "load_peer_public_key(client_cert,length);",
+    "text": true
+  },
+  {
+    "file": "q10.txt",
+    "title": "Encryption is cool",
+    "correct": "iv",
+    "text": true
+  },
+  {
+    "file": "q11.txt",
+    "title": "Make sure to handshake with everyone",
+    "options": [
+      "We lose the ability to use ciphers since we use them as an IV for CBC",
+      "It helps us generate pseudorandom keys",
+      "There's nothing stopping an attacker from repeating the handshake",
+      "There's literally no point to nonces"
+    ],
+    "correct": 2,
+    "text": false
+  },
+  {
+    "file": "q12.txt",
+    "title": "Trusting all authority?",
+    "options": [
+      "We lose the ability to use elliptic curves since we don't have a public key to use",
+      "If we don't sign with a certificate authority, we can't encrypt our data",
+      "Since the client also self-signs, there's no problem for the server to do so as well",
+      "How does the client know that the server really is the server?"
+    ],
+    "correct": 3,
+    "text": false
+  }
 ]

@@ -6,8 +6,7 @@ import { fileURLToPath } from "url";
 
 import dotenv from "dotenv";
 
-dotenv.config({ path: '../.env' });
-
+dotenv.config({ path: "../.env" });
 
 function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,7 +30,6 @@ server.get("/progress", (_, res) => {
   for (let player in players) {
     if (players[player].visible) {
       progress[player] = players[player].score;
-
     }
   }
 
@@ -256,11 +254,10 @@ function createTitleScreen(
       if (focused.submit) {
         //console.log("submit", focused.submit.toString());
         focused.submit();
-      } 
-      else if (focused.press) {
+      } else if (focused.press) {
         //console.log("press");
         focused.press();
-      } 
+      }
     });
 
     // Allow using arrow keys to switch between buttons
@@ -319,13 +316,12 @@ wss.on("connection", function connection(ws, req) {
         socket: ws,
         score: 0,
         updateScore: 0,
-        visible: true
+        visible: true,
       };
       team = teamName;
       //console.log("send");
 
       ws.send("team_create_success");
-    
     }
   });
   ws.on("close", () => {
