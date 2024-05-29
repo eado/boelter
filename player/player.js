@@ -531,7 +531,7 @@ async function main() {
     );
   } while (!valForm(names));
 
-  console.log("Proof of submission: ", jwt.sign({k: 1, d: names, t: Date.now() }, SECRETTOKEN))
+  console.log("Proof of submission: ", jwt.sign({k: 1, d: names }, SECRETTOKEN))
 
   await timeout(100);
 
