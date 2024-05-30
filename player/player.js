@@ -2,9 +2,17 @@ const fs = require("fs");
 const blessed = require("blessed");
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
-
 const dotenv = require("dotenv");
 dotenv.config({ path: "../.env" });
+
+const postgres = require("postgres");
+const pg = postgres({
+  host: "127.0.0.1",
+  post: 5432,
+  database: process.env["POSTGRES_DB"],
+  username: process.env["POSTGRES_USERNAME"],
+  password: process.env["POSTGRES_PASSWORD"],
+});
 
 function getPromiseFromEvent(item, event) {
   return new Promise((resolve) => {
@@ -83,13 +91,12 @@ function createForm(title, text, fieldNames) {
       top: "center",
       width: "50%",
       height: "100%",
-      bg: "black",
       border: {
         type: "line",
       },
       style: {
         border: {
-          fg: "blue",
+          fg: "#f0f0f0",
         },
       },
     });
@@ -100,7 +107,7 @@ function createForm(title, text, fieldNames) {
       // Create a label
       blessed.text({
         parent: form,
-        top: index * 3 + 1,
+        top: index * 2 + 1,
         left: 2,
         content: fieldName + ": ",
         style: {
@@ -113,13 +120,12 @@ function createForm(title, text, fieldNames) {
         parent: form,
         name: fieldName,
         inputOnFocus: true,
-        top: index * 3 + 1,
+        top: index * 2 + 1,
         left: fieldName.length + 4,
         width: 40,
         height: 1,
-        bg: "white",
         style: {
-          fg: "black",
+          fg: "white",
         },
         vi: false,
         keys: false,
@@ -187,7 +193,7 @@ function createTitleScreen(
   buttonLabels,
   time = 0,
   istextBox = false,
-  sure = false,
+  sure = false
 ) {
   return new Promise((res, _) => {
     let ans = "";
@@ -488,11 +494,17 @@ async function main() {
           return false;
         }
       }
+      if (key.toString().includes("Discussion")) {
+        if (!names[key].match(/^[a-gA-G]$/)) {
+          return false;
+        }
+        names[key] = names[key].toUpperCase();
+      }
     }
     return true;
   };
 
-  shuffle(QUESTIONS);
+  // shuffle(QUESTIONS);
 
   await createTitleScreen("Boelter Library Help Desk", WELCOME, [
     "Where's Boelter 2444?",
@@ -512,20 +524,23 @@ async function main() {
     names = await createForm("Data collection", FORMTXT, [
       "Member #1 Name",
       "Member #1 UID",
+      "Member #1 Discussion",
       "Member #2 Name",
       "Member #2 UID",
+      "Member #2 Discussion",
       "Member #3 Name (optional)",
       "Member #3 UID (optional)",
+      "Member #3 Discussion (optional)",
     ]);
     FORMTXT = FORMTXT.replace(
       "\n                    \n",
-      "\nError: Invalid form. Make sure UIDs are exactly 9 digits, and your name is filled out!\n",
+      "\n{red-bg}Error: Invalid form. Make sure UIDs are exactly 9 digits, your name is filled out, and discussion is a single letter a-g!{/red-bg}\n"
     );
   } while (!valForm(names));
 
   console.log(
     "Proof of submission: ",
-    jwt.sign({ k: 1, d: names }, SECRETTOKEN),
+    jwt.sign({ k: 1, d: names }, SECRETTOKEN)
   );
 
   await timeout(100);
@@ -536,17 +551,17 @@ async function main() {
     undefined,
     null,
     true,
-    true,
+    true
   );
 
   const invalidTeamNameScreen = async function (e) {
     return await createTitleScreen(
       "Preferred Name",
-      `Error: ${e}\n\nWhat is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.`,
+      `{red-bg}Error: ${e}{/red-bg}\n\nWhat is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.`,
       undefined,
       0,
       true,
-      true,
+      true
     );
   };
   const wss = new ws.WebSocket("ws://127.0.0.1:8081");
@@ -568,14 +583,14 @@ async function main() {
 
     if (teamName.length < 4 || teamName.length > 20) {
       teamName = await invalidTeamNameScreen(
-        "Preferred names must be between 4 and 20 characters.",
+        "Preferred names must be between 4 and 20 characters."
       );
 
       continue;
     }
     if (!teamName.match(/^[a-zA-Z0-9]+$/)) {
       teamName = await invalidTeamNameScreen(
-        "Preferred names must only contain alphanumeric characters and spaces.",
+        "Preferred names must only contain alphanumeric characters and spaces."
       );
       continue;
     }
@@ -592,16 +607,24 @@ async function main() {
     if (msg == "team_create_success") {
       console.log(
         "Team token (can be used to reconnect if disconnected):",
-        jwt.sign({ k: 0, t: teamName }, SECRETTOKEN),
+        jwt.sign({ k: 0, t: teamName }, SECRETTOKEN)
       );
       break;
     } else {
       teamName = await invalidTeamNameScreen(
-        "Your preferred name was already taken in our system. Please use another preferred name.",
+        "Your preferred name was already taken in our system. Please use another preferred name."
       );
       continue;
     }
   }
+
+  // create in db
+  const res = await sql`insert into teams (
+        team_name, member1_name, member2_name, member3_name, member1_id, member2_id, member3_id
+      ) values (
+        ${teamName}, ${names["Member #1 Name"]}, ${names["Member #2 Name"]}, ${names["Member #3 Name"]},
+        ${names["Member #1 UID"]}, ${names["Member #2 UID"]}, ${names["Member #3 UID"]}
+      )`;
 
   let i = 0;
   let correct = false;
@@ -609,28 +632,29 @@ async function main() {
 
   createTitleScreen(
     "Please hold",
-    "Please hold while we connect you to the next available representative.",
+    "Please hold while we connect you to the next available representative."
   );
 
   wss.on("message", async (data) => {
-    if ("data" === "team_taken") {
-    }
+    data = data.toString();
+    const msgType = data.substring(0, data.indexOf(" ")).trim();
+    const content = data.substring(data.indexOf(" ") + 1).trim();
     screen.destroy();
-    if (data == "start") {
+    if (msgType == "start") {
       correct = false;
-      const question = QUESTIONS[i];
+      const question = QUESTIONS[Number(content)];
       if (!question) {
         if (totalScore > 200) {
           await createTitleScreen(
             "Thank you for your continued loyalty.",
-            "We've processed your forms and pinpointed the location of Boelter 2444. Please find it here: seasnet{b0elt3r_w45_h0n35tly_5uch_4_h0m13}",
-            ["Pass the CS 33 final"],
+            "We've processed your forms and pinpointed the location of Boelter 2444.",
+            ["Pass the CS 33 final!"]
           );
         } else {
           await createTitleScreen(
             "We apologize.",
             "Sincere apologies. We could not find the location of Boelter 2444. Please try again later.",
-            ["Fail the CS 33 final"],
+            ["Fail the CS 33 final"]
           );
         }
         process.exit();
@@ -642,14 +666,16 @@ async function main() {
         question.title,
         txt,
         question.options,
-        TIMELIMIT,
+        question.time,
         question.text,
-        true,
+        true
       );
       const end = new Date();
       let score = Math.max(
         0,
-        TIMELIMIT - Math.round((end.getTime() - start.getTime()) / 1000),
+        question.time +
+          question.time -
+          Math.round((end.getTime() - start.getTime()) / 1000)
       );
 
       if (question.text) {
@@ -670,14 +696,14 @@ async function main() {
 
       createTitleScreen(
         "Received",
-        "We've received your request and will get back to you shortly.",
+        "We've received your request and will get back to you shortly."
       );
-    } else {
+    } else if (msgType === "end") {
       if (correct) {
         await createTitleScreen(
           "Your request will be processed soon.",
           "Our staff is pleased to receive your request. At first glance, prospects are promising. Your SEASnet status has been updated accordingly.",
-          ["Thanks!", "Just give me the next form already."],
+          ["Thanks!", "Just give me the next form already."]
         );
       } else {
         await createTitleScreen(
@@ -686,12 +712,12 @@ async function main() {
           [
             "No way, I swear I filled everything out correctly!",
             "Surely you must've lost my submission somewhere?",
-          ],
+          ]
         );
       }
       createTitleScreen(
         "Please hold",
-        "Please hold while we connect you to the next available representative.",
+        "Please hold while we connect you to the next available representative."
       );
     }
   });

@@ -3,6 +3,10 @@ import { WebSocketServer } from "ws";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
+const QUESTIONS = JSON.parse(
+  fs.readFileSync("../player/questions.json").toString()
+);
 
 import dotenv from "dotenv";
 
@@ -55,7 +59,7 @@ function createTitleScreen(
   buttonLabels,
   time = 0,
   istextBox = false,
-  sure = false,
+  sure = false
 ) {
   return new Promise((res, _) => {
     let ans = "";
@@ -288,8 +292,8 @@ wss.on("connection", function connection(ws, req) {
 
   ws.on("message", function message(data) {
     data = data.toString();
-    const msgType = data.substring(0, data.indexOf(" "));
-    const content = data.substring(data.indexOf(" ") + 1);
+    const msgType = data.substring(0, data.indexOf(" ")).trim();
+    const content = data.substring(data.indexOf(" ") + 1).trim();
     //console.log("MsgType:", msgType, "Content:", content);
     if (msgType === "answer") {
       if (currentState == ANSWER) {
@@ -330,20 +334,30 @@ wss.on("connection", function connection(ws, req) {
 });
 
 async function main() {
+  let currentQNum = 0;
   await createTitleScreen(
     "",
     "Waiting for players...\n",
     ["Start Game"],
     0,
     false,
-    true,
+    true
   );
 
   while (true) {
     currentState = ANSWER;
 
-    wss.clients.forEach((ws) => ws.send("start"));
-    await createTitleScreen("", "Answered:\n", ["End Round"], 120, false, true);
+    wss.clients.forEach((ws) => ws.send(`start ${currentQNum}`));
+    currentQNum += 1;
+    const currentQuestion = QUESTIONS[currentQNum];
+    await createTitleScreen(
+      "",
+      "Answered:\n",
+      ["End Round"],
+      currentQuestion.time,
+      false,
+      true
+    );
     currentState = WAIT;
     wss.clients.forEach((ws) => ws.send("end"));
     for (let player in players) {
@@ -353,9 +367,9 @@ async function main() {
       "",
       "Start new round",
       ["Start Round"],
-      120,
+      currentQuestion.time,
       false,
-      true,
+      true
     );
   }
 }

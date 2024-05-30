@@ -9,7 +9,8 @@
       "87.204.189.33; 168.20.30.40"
     ],
     "correct": 1,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q2.txt",
@@ -21,7 +22,8 @@
       "87.204.189.33; 168.20.30.40"
     ],
     "correct": 2,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q3.txt",
@@ -33,7 +35,8 @@
       "87.204.189.33; 168.20.30.40"
     ],
     "correct": 1,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q4.txt",
@@ -45,7 +48,8 @@
       "Encryption"
     ],
     "correct": 2,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q5.txt",
@@ -57,19 +61,22 @@
       "None of the above"
     ],
     "correct": 3,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q6.txt",
     "title": "Masks and masks",
     "correct": "8",
-    "text": true
+    "text": true,
+    "time": 30
   },
   {
     "file": "q7.txt",
     "title": "Who's my favorite subnet?",
     "correct": "62",
-    "text": true
+    "text": true,
+    "time": 30
   },
   {
     "file": "q8.txt",
@@ -81,19 +88,22 @@
       "None of the above"
     ],
     "correct": 2,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q9.txt",
     "title": "Sharing secrets?",
     "correct": "load_peer_public_key(client_cert,length);",
-    "text": true
+    "text": true,
+    "time": 30
   },
   {
     "file": "q10.txt",
     "title": "Encryption is cool",
     "correct": "iv",
-    "text": true
+    "text": true,
+    "time": 30
   },
   {
     "file": "q11.txt",
@@ -105,7 +115,8 @@
       "There's literally no point to nonces"
     ],
     "correct": 2,
-    "text": false
+    "text": false,
+    "time": 30
   },
   {
     "file": "q12.txt",
@@ -117,6 +128,7 @@
       "How does the client know that the server really is the server?"
     ],
     "correct": 3,
-    "text": false
+    "text": false,
+    "time": 30
   }
 ]

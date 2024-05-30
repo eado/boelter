@@ -12,6 +12,6 @@
 
                     
 
-Thanks for contacting the SEASnet Help Desk. Before we get started, we need to know who we are talking with. Please enter both you and your partner's name, UID, and discussion section.
+Thanks for contacting the SEASnet Help Desk. Before we get started, we need to know who we are talking with. Please enter both you and your partner's name, UID (9 digits), and discussion section (1 letter, like g).
 
-Use the arrow keys to move between the fields. Select the submit button and hit enter to submit.
+Use the arrow keys to move between the fields. Hit enter twice to submit, or select the submit button and hit enter.
