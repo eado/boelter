@@ -6,11 +6,11 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "../.env" });
 
 const postgres = require("postgres");
-const pg = postgres({
+const sql = postgres({
   host: "127.0.0.1",
   post: 5432,
   database: process.env["POSTGRES_DB"],
-  username: process.env["POSTGRES_USERNAME"],
+  username: process.env["POSTGRES_USER"],
   password: process.env["POSTGRES_PASSWORD"],
 });
 
@@ -480,7 +480,19 @@ function shuffle(array) {
 }
 
 async function main() {
+  await sql`select * from teams;`;
   const valForm = function (names) {
+    // If any part of member3 is filled out, all 3 must be filled out
+    let emptyVals = 0;
+    for (key in names) {
+      if (key.includes("Member #3")) {
+        emptyVals += names[key] == "";
+      }
+    }
+    if (emptyVals !== 3 && emptyVals !== 0) {
+      return "Member #3 Partially filled out";
+    }
+
     for (key in names) {
       // console.log(key);
       if (
@@ -491,17 +503,17 @@ async function main() {
       }
       if (key.toString().includes("UID")) {
         if (!names[key].match(/^[0-9]{9}$/)) {
-          return false;
+          return "UID invalid - should be exactly 9 digits";
         }
       }
       if (key.toString().includes("Discussion")) {
         if (!names[key].match(/^[a-gA-G]$/)) {
-          return false;
+          return "Invalid discussion - should be a single character A-G";
         }
         names[key] = names[key].toUpperCase();
       }
     }
-    return true;
+    return false;
   };
 
   // shuffle(QUESTIONS);
@@ -518,25 +530,42 @@ async function main() {
 
   // Collect information
 
-  let names;
+  let names = await createForm("Data collection", FORMTXT, [
+    "Member #1 Name",
+    "Member #1 UID",
+    "Member #1 Discussion",
+    "Member #2 Name",
+    "Member #2 UID",
+    "Member #2 Discussion",
+    "Member #3 Name (optional)",
+    "Member #3 UID (optional)",
+    "Member #3 Discussion (optional)",
+  ]);
 
-  do {
-    names = await createForm("Data collection", FORMTXT, [
-      "Member #1 Name",
-      "Member #1 UID",
-      "Member #1 Discussion",
-      "Member #2 Name",
-      "Member #2 UID",
-      "Member #2 Discussion",
-      "Member #3 Name (optional)",
-      "Member #3 UID (optional)",
-      "Member #3 Discussion (optional)",
-    ]);
-    FORMTXT = FORMTXT.replace(
-      "\n                    \n",
-      "\n{red-bg}Error: Invalid form. Make sure UIDs are exactly 9 digits, your name is filled out, and discussion is a single letter a-g!{/red-bg}\n"
+  while (true) {
+    let err = valForm(names);
+    if (err === false) {
+      break;
+    }
+    names = await createForm(
+      "Data collection",
+      FORMTXT.replace(
+        "\n                    \n",
+        `\n{red-bg}Error: ${err}{/red-bg}\n\n`
+      ),
+      [
+        "Member #1 Name",
+        "Member #1 UID",
+        "Member #1 Discussion",
+        "Member #2 Name",
+        "Member #2 UID",
+        "Member #2 Discussion",
+        "Member #3 Name (optional)",
+        "Member #3 UID (optional)",
+        "Member #3 Discussion (optional)",
+      ]
     );
-  } while (!valForm(names));
+  }
 
   console.log(
     "Proof of submission: ",
@@ -619,12 +648,17 @@ async function main() {
   }
 
   // create in db
-  const res = await sql`insert into teams (
-        team_name, member1_name, member2_name, member3_name, member1_id, member2_id, member3_id
+  await sql`insert into teams (
+        team_name, member1_name, member2_name, member1_id, member2_id, member1_dis, member2_dis
       ) values (
-        ${teamName}, ${names["Member #1 Name"]}, ${names["Member #2 Name"]}, ${names["Member #3 Name"]},
-        ${names["Member #1 UID"]}, ${names["Member #2 UID"]}, ${names["Member #3 UID"]}
+        ${teamName}, ${names["Member #1 Name"]}, ${names["Member #2 Name"]},
+        ${names["Member #1 UID"]}, ${names["Member #2 UID"]},
+        ${names["Member #1 Discussion"]}, ${names["Member #2 Discussion"]}
       )`;
+
+  if (names["Member #3 Name"]) {
+    await sql`update teams set member3_name = ${names["Member #3 Name"]}, member3_id = ${names["Member #3 UID"]}, member3_dis = ${names["Member #3 Discussion"]} where team_name = ${teamName}`;
+  }
 
   let i = 0;
   let correct = false;
@@ -643,22 +677,6 @@ async function main() {
     if (msgType == "start") {
       correct = false;
       const question = QUESTIONS[Number(content)];
-      if (!question) {
-        if (totalScore > 200) {
-          await createTitleScreen(
-            "Thank you for your continued loyalty.",
-            "We've processed your forms and pinpointed the location of Boelter 2444.",
-            ["Pass the CS 33 final!"]
-          );
-        } else {
-          await createTitleScreen(
-            "We apologize.",
-            "Sincere apologies. We could not find the location of Boelter 2444. Please try again later.",
-            ["Fail the CS 33 final"]
-          );
-        }
-        process.exit();
-      }
       i++;
       const txt = fs.readFileSync("texts/" + question.file).toString();
       const start = new Date();
@@ -702,13 +720,13 @@ async function main() {
       if (correct) {
         await createTitleScreen(
           "Your request will be processed soon.",
-          "Our staff is pleased to receive your request. At first glance, prospects are promising. Your SEASnet status has been updated accordingly.",
+          `Our staff is pleased to receive your request. At first glance, prospects are promising. Your SEASnet status has been updated accordingly to priority ${totalScore}.`,
           ["Thanks!", "Just give me the next form already."]
         );
       } else {
         await createTitleScreen(
           "There was an error in your request.",
-          "There was an error processing your request. Please try again.",
+          `There was an error processing your request. Please try again. Your priority is still ${totalScore}`,
           [
             "No way, I swear I filled everything out correctly!",
             "Surely you must've lost my submission somewhere?",
@@ -719,6 +737,23 @@ async function main() {
         "Please hold",
         "Please hold while we connect you to the next available representative."
       );
+    } else if (msgType === "finish") {
+      if (!question) {
+        if (totalScore > 200) {
+          await createTitleScreen(
+            "Thank you for your continued loyalty.",
+            "We've processed your forms and pinpointed the location of Boelter 2444.",
+            ["Pass the CS 33 final!"]
+          );
+        } else {
+          await createTitleScreen(
+            "We apologize.",
+            "Sincere apologies. We could not find the location of Boelter 2444. Please try again later.",
+            ["Fail the CS 33 final"]
+          );
+        }
+        process.exit();
+      }
     }
   });
 }

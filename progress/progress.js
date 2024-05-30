@@ -350,6 +350,10 @@ async function main() {
     wss.clients.forEach((ws) => ws.send(`start ${currentQNum}`));
     currentQNum += 1;
     const currentQuestion = QUESTIONS[currentQNum];
+    if (currentQuestion === undefined) {
+      wss.clients.forEach((ws) => ws.send("finish final"));
+      while (true) {}
+    }
     await createTitleScreen(
       "",
       "Answered:\n",
@@ -359,7 +363,7 @@ async function main() {
       true
     );
     currentState = WAIT;
-    wss.clients.forEach((ws) => ws.send("end"));
+    wss.clients.forEach((ws) => ws.send("end question"));
     for (let player in players) {
       players[player].score = players[player].updateScore;
     }

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -32,8 +32,9 @@
                 el.getElementsByClassName("bar").item(0).style.width = `${
                   (prog * 8) / 10
                 }vw`;
-                el.getElementsByClassName("percent").item(0).innerHTML =
-                  `${val[ip]}`;
+                el
+                  .getElementsByClassName("percent")
+                  .item(0).innerHTML = `${val[ip]}`;
               } else {
                 el = document.getElementById("temp").cloneNode(true);
                 el.id = ip;
@@ -41,10 +42,12 @@
                 el.getElementsByClassName("bar").item(0).style.width = `${
                   (prog * 8) / 10
                 }vw`;
-                el.getElementsByClassName("percent").item(0).innerHTML =
-                  `${val[ip]}`;
-                el.getElementsByClassName("group").item(0).innerHTML =
-                  `Ticket from ${ip}`;
+                el
+                  .getElementsByClassName("percent")
+                  .item(0).innerHTML = `${val[ip]}`;
+                el
+                  .getElementsByClassName("group")
+                  .item(0).innerHTML = `Ticket from ${ip}`;
                 document.getElementById("main").appendChild(el);
               }
             }
@@ -76,19 +79,9 @@
         color: lightblue;
       }
       * {
-        font-family:
-          "Source Code Pro",
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          Roboto,
-          Oxygen,
-          Ubuntu,
-          Cantarell,
-          "Open Sans",
-          "Helvetica Neue",
-          sans-serif;
+        font-family: "Source Code Pro", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+          "Open Sans", "Helvetica Neue", sans-serif;
       }
       .container {
         margin-left: 5vw;
@@ -102,6 +95,7 @@
       }
       .progress p {
         font-size: 1.5em;
+        width: 20vw;
       }
       .progress div {
         background-color: lightblue;
