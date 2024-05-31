@@ -6,14 +6,13 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 const QUESTIONS = JSON.parse(fs.readFileSync("questions.json").toString());
 
-
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env" });
 
 import postgres from "postgres";
 const sql = postgres({
-  host: "127.0.0.1",
+  host: "db",
   post: 5432,
   database: process.env["POSTGRES_DB"],
   username: process.env["POSTGRES_USER"],
