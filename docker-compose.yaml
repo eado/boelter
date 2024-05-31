@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:latest
-    container_name: postgres_db
+    container_name: db
     env_file:
       - .env
     ports:
@@ -9,3 +9,23 @@ services:
     volumes:
       - ./db/postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  player:
+    build:
+      context: .
+      dockerfile: player/Dockerfile
+    container_name: player
+    env_file:
+      - .env
+    ports:
+      - "2222:22"
+  server:
+    build:
+      context: .
+      dockerfile: progress/Dockerfile
+      args:
+        - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    container_name: server
+    env_file:
+      - .env
+    ports:
+      - "2223:22"

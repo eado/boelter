@@ -3,11 +3,11 @@ const blessed = require("blessed");
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: ".env" });
 
 const postgres = require("postgres");
 const sql = postgres({
-  host: "127.0.0.1",
+  host: "db",
   post: 5432,
   database: process.env["POSTGRES_DB"],
   username: process.env["POSTGRES_USER"],
@@ -480,6 +480,18 @@ function shuffle(array) {
 }
 
 async function main() {
+  const wss = new ws.WebSocket("ws://server:8081");
+  wss.on("error", () => {
+    try {
+      screen.destroy();
+    } finally {
+      console.log(
+        "An error occurred when connecting to the game. Is the game running?"
+      );
+      process.exit(1);
+    }
+  });
+  await waitForOpenSocket(wss);
   await sql`select * from teams;`;
   const valForm = function (names) {
     // If any part of member3 is filled out, all 3 must be filled out
@@ -506,6 +518,7 @@ async function main() {
           return "UID invalid - should be exactly 9 digits";
         }
       }
+      `1`;
       if (key.toString().includes("Discussion")) {
         if (!names[key].match(/^[a-gA-G]$/)) {
           return "Invalid discussion - should be a single character A-G";
@@ -593,8 +606,7 @@ async function main() {
       true
     );
   };
-  const wss = new ws.WebSocket("ws://127.0.0.1:8081");
-  await waitForOpenSocket(wss);
+
   let validTeam = false;
 
   // const checkIfTaken = (msg) => {
@@ -623,16 +635,15 @@ async function main() {
       );
       continue;
     }
-    console.log("Connecting");
+    console.log(
+      "Connecting - if you see this message for more than a few seconds, the connection failed."
+    );
     let msg = getPromiseFromEvent(wss, "message");
     wss.send(`create ${teamName}`);
     //console.log("a");
     msg = await (await msg).data;
     //console.log("msg:", msg);
-
     msg = msg.toString();
-    await timeout(1000);
-
     if (msg == "team_create_success") {
       console.log(
         "Team token (can be used to reconnect if disconnected):",
@@ -671,8 +682,15 @@ async function main() {
 
   wss.on("message", async (data) => {
     data = data.toString();
-    const msgType = data.substring(0, data.indexOf(" ")).trim();
-    const content = data.substring(data.indexOf(" ") + 1).trim();
+    let msgType;
+    let content;
+    if (data.includes(" ")) {
+      msgType = data.substring(0, data.indexOf(" ")).trim();
+      content = data.substring(data.indexOf(" ") + 1).trim();
+    } else {
+      msgType = data;
+      content = null;
+    }
     screen.destroy();
     if (msgType == "start") {
       correct = false;
@@ -738,22 +756,22 @@ async function main() {
         "Please hold while we connect you to the next available representative."
       );
     } else if (msgType === "finish") {
-      if (!question) {
-        if (totalScore > 200) {
-          await createTitleScreen(
-            "Thank you for your continued loyalty.",
-            "We've processed your forms and pinpointed the location of Boelter 2444.",
-            ["Pass the CS 33 final!"]
-          );
-        } else {
-          await createTitleScreen(
-            "We apologize.",
-            "Sincere apologies. We could not find the location of Boelter 2444. Please try again later.",
-            ["Fail the CS 33 final"]
-          );
-        }
-        process.exit();
+      if (totalScore > 200) {
+        await createTitleScreen(
+          "Thank you for your continued loyalty.",
+          `We've processed your forms and pinpointed the location of Boelter 2444.\n\nFinal priority level: ${totalScore}`,
+          ["Pass the CS 33 final!"]
+        );
+      } else {
+        await createTitleScreen(
+          "We apologize.",
+          `Sincere apologies. We could not find the location of Boelter 2444. Please try again later.\n\nFinal priority level: ${totalScore}`,
+          ["Fail the CS 33 final"]
+        );
       }
+      process.exit();
+    } else if (msgType === "pong") {
+      // Do nothing
     }
   });
 }

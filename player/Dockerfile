@@ -4,6 +4,10 @@ ENV USER=help
 ENV PASSWORD=desk
 ENV ENV=/$USER/.rc
 
+WORKDIR /$USER
+
+STOPSIGNAL SIGKILL
+
 RUN mkdir -p /$USER \
     && echo -e "$PASSWORD\n$PASSWORD\n" | adduser --gecos "" --home "/$USER" --no-create-home $USER \
     && mkdir -p /$USER/.ssh \
@@ -17,7 +21,9 @@ RUN mkdir -p /$USER \
     && apk add --update nodejs npm \
     && echo -e "trap 'exit' 0 SIGINT EXIT SIGSTOP \n/$USER/run \nexit" >> /etc/profile 
 
-COPY . /$USER
-RUN cd /$USER && npm i
+COPY player/ .
+COPY .env .
+COPY questions/questions.json .
+RUN npm i
 
-CMD ["sh", "-c", "rc-status; rc-service sshd start; cat"]
+CMD ["sh", "-c", "rc-status; rc-service sshd start; tail -f /dev/null"]

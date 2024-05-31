@@ -4,13 +4,21 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-const QUESTIONS = JSON.parse(
-  fs.readFileSync("../player/questions.json").toString()
-);
+const QUESTIONS = JSON.parse(fs.readFileSync("questions.json").toString());
+
 
 import dotenv from "dotenv";
 
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: ".env" });
+
+import postgres from "postgres";
+const sql = postgres({
+  host: "127.0.0.1",
+  post: 5432,
+  database: process.env["POSTGRES_DB"],
+  username: process.env["POSTGRES_USER"],
+  password: process.env["POSTGRES_PASSWORD"],
+});
 
 function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -292,8 +300,16 @@ wss.on("connection", function connection(ws, req) {
 
   ws.on("message", function message(data) {
     data = data.toString();
-    const msgType = data.substring(0, data.indexOf(" ")).trim();
-    const content = data.substring(data.indexOf(" ") + 1).trim();
+    let msgType;
+    let content;
+    if (data.includes(" ")) {
+      msgType = data.substring(0, data.indexOf(" ")).trim();
+      content = data.substring(data.indexOf(" ") + 1).trim();
+    } else {
+      msgType = data;
+      content = null;
+    }
+
     //console.log("MsgType:", msgType, "Content:", content);
     if (msgType === "answer") {
       if (currentState == ANSWER) {
@@ -326,10 +342,14 @@ wss.on("connection", function connection(ws, req) {
       //console.log("send");
 
       ws.send("team_create_success");
+    } else if (msgType === "ping") {
+      ws.send("pong");
     }
   });
   ws.on("close", () => {
-    players[team].visible = false;
+    try {
+      players[team].visible = false;
+    } catch {}
   });
 });
 
@@ -346,14 +366,8 @@ async function main() {
 
   while (true) {
     currentState = ANSWER;
-
     wss.clients.forEach((ws) => ws.send(`start ${currentQNum}`));
-    currentQNum += 1;
     const currentQuestion = QUESTIONS[currentQNum];
-    if (currentQuestion === undefined) {
-      wss.clients.forEach((ws) => ws.send("finish final"));
-      while (true) {}
-    }
     await createTitleScreen(
       "",
       "Answered:\n",
@@ -367,14 +381,33 @@ async function main() {
     for (let player in players) {
       players[player].score = players[player].updateScore;
     }
-    await createTitleScreen(
+    const res = await createTitleScreen(
       "",
       "Start new round",
-      ["Start Round"],
-      currentQuestion.time,
+      ["Start Round", "End Game"],
+      0,
       false,
       true
     );
+    if (res === "End Game" || currentQNum + 1 >= QUESTIONS.length) {
+      wss.clients.forEach((ws) => ws.send("finish final"));
+      const finalScores =
+        await sql`select teams.*, coalesce( sum(points), 0) as total_points from teams left outer join submissions on teams.team_name = submissions.team_name group by teams.team_name order by total_points desc;`;
+
+      console.table(finalScores, [
+        "team_name",
+        "member1_name",
+        "member2_name",
+        "member3_name",
+        "total_points",
+      ]);
+      console.log(
+        "Game is over - web server still shows leaderboard until quit."
+      );
+      wss.close();
+      break;
+    }
+    currentQNum += 1;
   }
 }
 
