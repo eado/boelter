@@ -6,8 +6,6 @@ ENV ENV=/$USER/.rc
 
 WORKDIR /$USER
 
-STOPSIGNAL SIGKILL
-
 RUN mkdir -p /$USER \
     && echo -e "$PASSWORD\n$PASSWORD\n" | adduser --gecos "" --home "/$USER" --no-create-home $USER \
     && mkdir -p /$USER/.ssh \
@@ -22,8 +20,10 @@ RUN mkdir -p /$USER \
     && echo -e "trap 'exit' 0 SIGINT EXIT SIGSTOP \n/$USER/run \nexit" >> /etc/profile 
 
 COPY player/ .
+RUN npm i
 COPY .env .
 COPY questions/questions.json .
-RUN npm i
+COPY wait-stop-ssh.sh .
+RUN chmod +x wait-stop-ssh.sh
 
-CMD ["sh", "-c", "rc-status; rc-service sshd start; tail -f /dev/null"]
+CMD ["sh", "-c", "rc-status; rc-service sshd start; ./wait-stop-ssh.sh"]

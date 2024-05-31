@@ -4,13 +4,16 @@ A mini pop quiz game for CS 33, originally created by https://github.com/eado fo
 
 ## Requirements
 
-Docker >=v24  
-Ports open:
-
-- 80 (Public progress dashboard)
-- 22[0-n] (where n is the number of players)
+- Docker
+- Intended use ports open
 
 ## Setup
+
+### One game
+
+Run `docker compose up`. Players connect to ports 2222 via ssh, and the game host connects to port 2223 and can see the website at port 8080.
+
+### Multiple games
 
 Run `start.bash`.  
 To change the number of players (default 10, max 99),
