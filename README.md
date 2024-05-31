@@ -13,7 +13,7 @@ A mini pop quiz game for CS 33, originally created by https://github.com/eado fo
 
 Run `docker compose up`. Players connect to ports 2222 via ssh, and the game host connects to port 2223 and can see the website at port 8080.
 
-### Multiple games
+### Multiple games (outdated, to be fixed and updated)
 
 Run `start.bash`.  
 To change the number of players (default 10, max 99),
