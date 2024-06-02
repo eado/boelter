@@ -804,13 +804,13 @@ async function main() {
       if (correct) {
         await createTitleScreen(
           "Your request will be processed soon.",
-          `Our staff is pleased to receive your request. At first glance, prospects are promising. Your SEASnet status has been updated accordingly to priority ${totalScore}.`,
+          `Our staff is pleased to receive your request. At first glance, prospects are promising. Your SEASnet support ticket has been updated accordingly to priority ${totalScore}.`,
           ["Thanks!", "Just give me the next form already."],
         );
       } else {
         await createTitleScreen(
           "There was an error in your request.",
-          `There was an error processing your request. Please try again. Your priority is still ${totalScore}`,
+          `There was an error processing your request. Please try again. Your SEASnet support ticket priority is still ${totalScore}`,
           [
             "No way, I swear I filled everything out correctly!",
             "Surely you must've lost my submission somewhere?",
@@ -825,13 +825,13 @@ async function main() {
       if (totalScore > 200) {
         await createTitleScreen(
           "Thank you for your continued loyalty.",
-          `We've processed your forms and pinpointed the location of Boelter 2444.\n\nFinal priority level: ${totalScore}`,
+          `We've processed your forms and pinpointed the location of Boelter 2444.\n\nFinal ticket priority level: ${totalScore}`,
           ["Pass the CS 33 final!"],
         );
       } else {
         await createTitleScreen(
           "We apologize.",
-          `Sincere apologies. We could not find the location of Boelter 2444. Please try again later.\n\nFinal priority level: ${totalScore}`,
+          `Sincere apologies. We could not find the location of Boelter 2444. Please try again later.\n\nFinal ticket priority level: ${totalScore}`,
           ["Fail the CS 33 final"],
         );
       }
