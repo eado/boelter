@@ -193,7 +193,7 @@ function createTitleScreen(
   buttonLabels,
   time = 0,
   istextBox = false,
-  sure = false
+  sure = false,
 ) {
   return new Promise((res, _) => {
     let ans = "";
@@ -486,7 +486,7 @@ async function main() {
       screen.destroy();
     } finally {
       console.log(
-        "An error occurred when connecting to the game. Is the game running?"
+        "An error occurred when connecting to the game. Is the game running?",
       );
       process.exit(1);
     }
@@ -537,7 +537,7 @@ async function main() {
   const rejoinRes = await createTitleScreen(
     "Player create",
     "Do you already have a ticket that you would like to rejoin the queue for?",
-    ["No, I'm new", "Yes - I have a rejoin token"]
+    ["No, I'm new", "Yes - I have a rejoin token"],
   );
 
   if (rejoinRes.startsWith("Yes")) {
@@ -546,7 +546,7 @@ async function main() {
       "Please enter your team rejoin token:",
       [],
       0,
-      true
+      true,
     );
     try {
       teamName = jwt.verify(inputToken, SECRETTOKEN)["t"];
@@ -566,7 +566,7 @@ async function main() {
     if (msg === "team_rejoin_success") {
       console.log(
         "Team token (can be used to reconnect if disconnected):",
-        jwt.sign({ k: 0, t: teamName }, SECRETTOKEN)
+        jwt.sign({ k: 0, t: teamName }, SECRETTOKEN),
       );
     } else if (msg === "team_does_not_exist") {
       screen.destroy();
@@ -607,7 +607,7 @@ async function main() {
         "Data collection",
         FORMTXT.replace(
           "\n                    \n",
-          `\n{red-bg}Error: ${err}{/red-bg}\n\n`
+          `\n{red-bg}Error: ${err}{/red-bg}\n\n`,
         ),
         [
           "Member #1 Name",
@@ -619,13 +619,13 @@ async function main() {
           "Member #3 Name (optional)",
           "Member #3 UID (optional)",
           "Member #3 Discussion (optional)",
-        ]
+        ],
       );
     }
 
     console.log(
       "Proof of submission: ",
-      jwt.sign({ k: 1, d: names }, SECRETTOKEN)
+      jwt.sign({ k: 1, d: names }, SECRETTOKEN),
     );
 
     await timeout(100);
@@ -636,7 +636,7 @@ async function main() {
       undefined,
       null,
       true,
-      true
+      true,
     );
 
     const invalidTeamNameScreen = async function (e) {
@@ -646,7 +646,7 @@ async function main() {
         undefined,
         0,
         true,
-        true
+        true,
       );
     };
 
@@ -667,14 +667,14 @@ async function main() {
 
       if (teamName.length < 4 || teamName.length > 20) {
         teamName = await invalidTeamNameScreen(
-          "Preferred names must be between 4 and 20 characters."
+          "Preferred names must be between 4 and 20 characters.",
         );
 
         continue;
       }
       if (!teamName.match(/^[a-zA-Z0-9]+$/)) {
         teamName = await invalidTeamNameScreen(
-          "Preferred names must only contain alphanumeric characters and spaces."
+          "Preferred names must only contain alphanumeric characters and spaces.",
         );
         continue;
       }
@@ -683,12 +683,12 @@ async function main() {
         0
       ) {
         teamName = await invalidTeamNameScreen(
-          "Your preferred name was already taken in our system. Please use another preferred name."
+          "Your preferred name was already taken in our system. Please use another preferred name.",
         );
         continue;
       }
       console.log(
-        "Connecting - if you see this message for more than a few seconds, the connection failed."
+        "Connecting - if you see this message for more than a few seconds, the connection failed.",
       );
       let msg = getPromiseFromEvent(wss, "message");
       wss.send(`create ${teamName}`);
@@ -699,12 +699,12 @@ async function main() {
       if (msg == "team_create_success") {
         console.log(
           "Team token (can be used to reconnect if disconnected):",
-          jwt.sign({ k: 0, t: teamName }, SECRETTOKEN)
+          jwt.sign({ k: 0, t: teamName }, SECRETTOKEN),
         );
         break;
       } else {
         teamName = await invalidTeamNameScreen(
-          "Your preferred name was already taken in our system. Please use another preferred name."
+          "Your preferred name was already taken in our system. Please use another preferred name.",
         );
         continue;
       }
@@ -731,13 +731,13 @@ async function main() {
     totalScore = parseInt(
       (
         await sql`select sum(points) as pts from submissions where team_name = ${teamName}`
-      )[0]["pts"]
+      )[0]["pts"],
     );
   }
 
   createTitleScreen(
     "Please hold",
-    "Please hold while we connect you to the next available representative."
+    "Please hold while we connect you to the next available representative.",
   );
 
   wss.on("message", async (data) => {
@@ -763,14 +763,14 @@ async function main() {
         question.options,
         question.time,
         question.text,
-        true
+        true,
       );
       const end = new Date();
       let score = Math.max(
         0,
         question.time +
           question.time -
-          Math.round((end.getTime() - start.getTime()) / 1000)
+          Math.round((end.getTime() - start.getTime()) / 1000),
       );
 
       if (question.text) {
@@ -798,14 +798,14 @@ async function main() {
 
       createTitleScreen(
         "Received",
-        "We've received your request and will get back to you shortly."
+        "We've received your request and will get back to you shortly.",
       );
     } else if (msgType === "end") {
       if (correct) {
         await createTitleScreen(
           "Your request will be processed soon.",
           `Our staff is pleased to receive your request. At first glance, prospects are promising. Your SEASnet status has been updated accordingly to priority ${totalScore}.`,
-          ["Thanks!", "Just give me the next form already."]
+          ["Thanks!", "Just give me the next form already."],
         );
       } else {
         await createTitleScreen(
@@ -814,25 +814,25 @@ async function main() {
           [
             "No way, I swear I filled everything out correctly!",
             "Surely you must've lost my submission somewhere?",
-          ]
+          ],
         );
       }
       createTitleScreen(
         "Please hold",
-        "Please hold while we connect you to the next available representative."
+        "Please hold while we connect you to the next available representative.",
       );
     } else if (msgType === "finish") {
       if (totalScore > 200) {
         await createTitleScreen(
           "Thank you for your continued loyalty.",
           `We've processed your forms and pinpointed the location of Boelter 2444.\n\nFinal priority level: ${totalScore}`,
-          ["Pass the CS 33 final!"]
+          ["Pass the CS 33 final!"],
         );
       } else {
         await createTitleScreen(
           "We apologize.",
           `Sincere apologies. We could not find the location of Boelter 2444. Please try again later.\n\nFinal priority level: ${totalScore}`,
-          ["Fail the CS 33 final"]
+          ["Fail the CS 33 final"],
         );
       }
       process.exit();

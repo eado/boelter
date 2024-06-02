@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Get number of players
-n=20
+# Get number of game instances
+n=2
 
 if [ $# -eq 1 ]; then
     n=$1
 elif [ $# -gt 1 ]; then
     echo "Usage: $0 [n]"
-    echo "Where n is the optional number of player containers to start. Default is 10. Max is 99."
+    echo "Where n is the optional number of player containers to start. Default is 2. Max is 99."
     exit 1
 fi
 
@@ -16,19 +16,13 @@ docker stop `docker ps -qa`
 docker rm `docker ps -qa`
 docker network rm `docker network ls -q`
 
-# Build images
-docker build -t player player
-docker build -t progress progress
-
-# Create network
-docker network create --subnet 10.0.0.0/16 iso
-
-# Run players
-for i in $(seq 0 $n); do
+# Start networks w/ compose under different project names
+for i in $(seq 1 $n); do
     suffix=$(printf "%02d" $i)
-    docker run -h "player$i" --name "player$i" --net iso --ip "10.0.0.1$suffix" -p "22$suffix:22" -td player
+    export SERVER_PORT=2${suffix}2
+    export SERVER_HTTP_PORT=2${suffix}1
+    export PLAYER_PORT=2${suffix}0
+    docker-compose -p ${suffix} up --build -d 
 done
 
-# Run servers
-docker run -h progress --name progress --net iso --ip 10.0.0.2 -p "80:8080" -td progress
-
+echo Done! Each game instance is started at port 2XXY, where XX is the 2-digit game instance number starting at 01, and Y is 0 for player ssh join, 1 for http web server, and 2 for host ssh join.

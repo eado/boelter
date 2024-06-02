@@ -68,7 +68,7 @@ function createTitleScreen(
   buttonLabels,
   time = 0,
   istextBox = false,
-  sure = false
+  sure = false,
 ) {
   return new Promise((res, _) => {
     let ans = "";
@@ -384,7 +384,7 @@ async function main() {
     ["Start Game"],
     0,
     false,
-    true
+    true,
   );
 
   while (true) {
@@ -397,7 +397,7 @@ async function main() {
       ["End Round"],
       currentQuestion.time,
       false,
-      true
+      true,
     );
     currentState = WAIT;
     wss.clients.forEach((ws) => ws.send("end question"));
@@ -410,7 +410,7 @@ async function main() {
       ["Start Round", "End Game"],
       0,
       false,
-      true
+      true,
     );
     if (res === "End Game" || currentQNum + 1 >= QUESTIONS.length) {
       wss.clients.forEach((ws) => ws.send("finish final"));
@@ -425,7 +425,7 @@ async function main() {
         "total_points",
       ]);
       console.log(
-        "Game is over - web server still shows leaderboard until quit."
+        "Game is over - web server still shows leaderboard until quit.",
       );
       wss.close();
       break;
