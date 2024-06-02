@@ -67,7 +67,7 @@
   {
     "file": "q6.txt",
     "title": "Masks and masks",
-    "correct": "8",
+    "correct": "8(.0)?",
     "text": true,
     "time": 30
   },
@@ -94,7 +94,7 @@
   {
     "file": "q9.txt",
     "title": "Sharing secrets?",
-    "correct": "load_peer_public_key(client_cert,length);",
+    "correct": "load_peer_public_key\\(client_cert,length\\);",
     "text": true,
     "time": 30
   },

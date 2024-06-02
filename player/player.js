@@ -537,7 +537,7 @@ async function main() {
   const rejoinRes = await createTitleScreen(
     "Player create",
     "Do you already have a ticket that you would like to rejoin the queue for?",
-    ["Yes - I have a rejoin token", "No, I'm new"]
+    ["No, I'm new", "Yes - I have a rejoin token"]
   );
 
   if (rejoinRes.startsWith("Yes")) {
@@ -774,7 +774,8 @@ async function main() {
       );
 
       if (question.text) {
-        if (question.correct == resp) {
+        const re = new RegExp("^" + question.correct + "$");
+        if (re.test(resp.trim())) {
           totalScore += score;
           correct = true;
         }
@@ -787,11 +788,11 @@ async function main() {
 
       if (correct) {
         await sql`insert into submissions (team_name, question, points, solved) values 
-        (${teamName}, ${Number(content)}, ${score}, "t")`;
+        (${teamName}, ${Number(content)}, ${score}, TRUE)`;
         wss.send(`answer ${+score}`);
       } else {
         await sql`insert into submissions (team_name, question, points, solved) values 
-        (${teamName}, ${Number(content)}, 0, "f")`;
+        (${teamName}, ${Number(content)}, 0, FALSE)`;
         wss.send("answer 0");
       }
 
