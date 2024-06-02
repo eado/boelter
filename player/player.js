@@ -775,7 +775,6 @@ async function main() {
 
       if (question.text) {
         if (question.correct == resp) {
-          wss.send(`answer ${+score}`);
           totalScore += score;
           correct = true;
         }
