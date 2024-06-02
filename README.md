@@ -13,22 +13,20 @@ A mini pop quiz game for CS 33, originally created by https://github.com/eado fo
 
 Run `docker compose up`. Players connect to ports 2222 via ssh, and the game host connects to port 2223 and can see the website at port 8080.
 
-### Multiple games (outdated, to be fixed and updated)
+### Multiple games
 
 Run `start.bash`.  
-To change the number of players (default 10, max 99),
+To change the number of game instances to spawn (default 2, max 99),
 add the option `-n <num>` where `<num>` is the number of players you want to
 instantiate.
 
 This will:
 
-- Create n + 1 Docker containers with the name `player<i>`.
-  - This includes `player0` for demonstration.
-  - Each will have ssh open on port `22<i:2>` (for example, `player1` has port
-    `2201` open).
-  - These are helpdesk servers that players use as a starting point.
-- Create a progress server to track players' progression.
-  - Each player connects to the progress server via WebSockets
+- Create n docker compose projects, named 01, 02, ... up to n
+  - Each project consists of a psql database, a player container that players can ssh into, and a host container that the host must ssh into to start the game
+  - If XX is the project name, port 2XX0 is the port players ssh into, port 2XX1 is the HTTP web server port, and port 2XX2 is the host ssh port.
+  - Inside of the player container, each player gets an instance of player.js automatically upon connection
+  - Each player connects to the host server via WebSockets, and directly to the database
   - The progress server pings the players whenever there's a new round
   - Based on the elapsed time, the progress server awards points when a player
     submits an answer
