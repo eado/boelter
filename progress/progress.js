@@ -28,6 +28,8 @@ const NUMQUESTIONS = 8;
 const wss = new WebSocketServer({ host: "0.0.0.0", port: 8081 });
 const server = express();
 
+const startTime = Math.floor(Date.now() / 1000);
+
 const players = {};
 
 server.get("/", (_, res) => {
@@ -341,6 +343,28 @@ wss.on("connection", function connection(ws, req) {
       //console.log("send");
 
       ws.send("team_create_success");
+    } else if (msgType === "rejoin") {
+      //console.log("team");
+      const [teamName, ts] = content.trim().split(" ");
+      if (parseInt(ts) < startTime) {
+        ws.send("team_does_not_exist");
+        return;
+      }
+
+      // if (currentState == START) {
+      //   titleBox.content += teamName + "\n";
+      //   screen.render();
+      // }
+
+      // screen.render();
+      if (players[teamName] === undefined) {
+        ws.send("team_does_not_exist");
+        return;
+      }
+      players[teamName].socket = ws;
+      players[teamName].visible = true;
+      team = teamName;
+      ws.send("team_rejoin_success");
     } else if (msgType === "ping") {
       ws.send("pong");
     }

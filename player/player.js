@@ -531,149 +531,209 @@ async function main() {
 
   // shuffle(QUESTIONS);
 
-  await createTitleScreen("Boelter Library Help Desk", WELCOME, [
-    "Where's Boelter 2444?",
-    "How do I get to the second floor?",
-  ]);
-  const terms = await createTitleScreen("Instructions", INSTRUCTIONS, [
-    "I agree to the terms and conditions",
-    "I do not agree",
-  ]);
-  if (terms != "I agree to the terms and conditions") process.exit();
+  let teamName;
+  let ts;
 
-  // Collect information
-
-  let names = await createForm("Data collection", FORMTXT, [
-    "Member #1 Name",
-    "Member #1 UID",
-    "Member #1 Discussion",
-    "Member #2 Name",
-    "Member #2 UID",
-    "Member #2 Discussion",
-    "Member #3 Name (optional)",
-    "Member #3 UID (optional)",
-    "Member #3 Discussion (optional)",
-  ]);
-
-  while (true) {
-    let err = valForm(names);
-    if (err === false) {
-      break;
-    }
-    names = await createForm(
-      "Data collection",
-      FORMTXT.replace(
-        "\n                    \n",
-        `\n{red-bg}Error: ${err}{/red-bg}\n\n`
-      ),
-      [
-        "Member #1 Name",
-        "Member #1 UID",
-        "Member #1 Discussion",
-        "Member #2 Name",
-        "Member #2 UID",
-        "Member #2 Discussion",
-        "Member #3 Name (optional)",
-        "Member #3 UID (optional)",
-        "Member #3 Discussion (optional)",
-      ]
-    );
-  }
-
-  console.log(
-    "Proof of submission: ",
-    jwt.sign({ k: 1, d: names }, SECRETTOKEN)
+  const rejoinRes = await createTitleScreen(
+    "Player create",
+    "Do you already have a ticket that you would like to rejoin the queue for?",
+    ["Yes - I have a rejoin token", "No, I'm new"]
   );
 
-  await timeout(100);
-
-  let teamName = await createTitleScreen(
-    "Preferred Name",
-    "What is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.",
-    undefined,
-    null,
-    true,
-    true
-  );
-
-  const invalidTeamNameScreen = async function (e) {
-    return await createTitleScreen(
-      "Preferred Name",
-      `{red-bg}Error: ${e}{/red-bg}\n\nWhat is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.`,
-      undefined,
+  if (rejoinRes.startsWith("Yes")) {
+    const inputToken = await createTitleScreen(
+      "Login verification",
+      "Please enter your team rejoin token:",
+      [],
       0,
-      true,
       true
     );
-  };
-
-  let validTeam = false;
-
-  // const checkIfTaken = (msg) => {
-  //   if (msg === "team_taken") {
-  //     validTeam = false;
-  //   } else if (msg === "team_create_success") {
-  //     validTeam = true;
-  //   }
-  // }
-
-  while (!validTeam) {
-    teamName = teamName.toString().trim();
-    //console.log("Name:", teamName);
-    //console.log("Length:", teamName.length);
-
-    if (teamName.length < 4 || teamName.length > 20) {
-      teamName = await invalidTeamNameScreen(
-        "Preferred names must be between 4 and 20 characters."
-      );
-
-      continue;
+    try {
+      teamName = jwt.verify(inputToken, SECRETTOKEN)["t"];
+      ts = jwt.verify(inputToken, SECRETTOKEN)["iat"];
+    } catch {
+      screen.destroy();
+      console.log("Invalid team token");
+      process.exit(1);
     }
-    if (!teamName.match(/^[a-zA-Z0-9]+$/)) {
-      teamName = await invalidTeamNameScreen(
-        "Preferred names must only contain alphanumeric characters and spaces."
-      );
-      continue;
-    }
-    console.log(
-      "Connecting - if you see this message for more than a few seconds, the connection failed."
-    );
+
     let msg = getPromiseFromEvent(wss, "message");
-    wss.send(`create ${teamName}`);
+    wss.send(`rejoin ${teamName} ${ts}`);
     //console.log("a");
     msg = await (await msg).data;
     //console.log("msg:", msg);
     msg = msg.toString();
-    if (msg == "team_create_success") {
+    if (msg === "team_rejoin_success") {
       console.log(
         "Team token (can be used to reconnect if disconnected):",
         jwt.sign({ k: 0, t: teamName }, SECRETTOKEN)
       );
-      break;
-    } else {
-      teamName = await invalidTeamNameScreen(
-        "Your preferred name was already taken in our system. Please use another preferred name."
+    } else if (msg === "team_does_not_exist") {
+      screen.destroy();
+      console.log("Your team was not found. Did a new game start?");
+      process.exit(1);
+    }
+  } else {
+    await createTitleScreen("Boelter Library Help Desk", WELCOME, [
+      "Where's Boelter 2444?",
+      "How do I get to the second floor?",
+    ]);
+    const terms = await createTitleScreen("Instructions", INSTRUCTIONS, [
+      "I agree to the terms and conditions",
+      "I do not agree",
+    ]);
+    if (terms != "I agree to the terms and conditions") process.exit();
+
+    // Collect information
+
+    let names = await createForm("Data collection", FORMTXT, [
+      "Member #1 Name",
+      "Member #1 UID",
+      "Member #1 Discussion",
+      "Member #2 Name",
+      "Member #2 UID",
+      "Member #2 Discussion",
+      "Member #3 Name (optional)",
+      "Member #3 UID (optional)",
+      "Member #3 Discussion (optional)",
+    ]);
+
+    while (true) {
+      let err = valForm(names);
+      if (err === false) {
+        break;
+      }
+      names = await createForm(
+        "Data collection",
+        FORMTXT.replace(
+          "\n                    \n",
+          `\n{red-bg}Error: ${err}{/red-bg}\n\n`
+        ),
+        [
+          "Member #1 Name",
+          "Member #1 UID",
+          "Member #1 Discussion",
+          "Member #2 Name",
+          "Member #2 UID",
+          "Member #2 Discussion",
+          "Member #3 Name (optional)",
+          "Member #3 UID (optional)",
+          "Member #3 Discussion (optional)",
+        ]
       );
-      continue;
+    }
+
+    console.log(
+      "Proof of submission: ",
+      jwt.sign({ k: 1, d: names }, SECRETTOKEN)
+    );
+
+    await timeout(100);
+
+    teamName = await createTitleScreen(
+      "Preferred Name",
+      "What is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.",
+      undefined,
+      null,
+      true,
+      true
+    );
+
+    const invalidTeamNameScreen = async function (e) {
+      return await createTitleScreen(
+        "Preferred Name",
+        `{red-bg}Error: ${e}{/red-bg}\n\nWhat is your preferred name your group would like to be referred to as?\n\nMust be appropriate, and will be displayed when your responses are used in statistical reports in place of your legal name.`,
+        undefined,
+        0,
+        true,
+        true
+      );
+    };
+
+    let validTeam = false;
+
+    // const checkIfTaken = (msg) => {
+    //   if (msg === "team_taken") {
+    //     validTeam = false;
+    //   } else if (msg === "team_create_success") {
+    //     validTeam = true;
+    //   }
+    // }
+
+    while (!validTeam) {
+      teamName = teamName.toString().trim();
+      //console.log("Name:", teamName);
+      //console.log("Length:", teamName.length);
+
+      if (teamName.length < 4 || teamName.length > 20) {
+        teamName = await invalidTeamNameScreen(
+          "Preferred names must be between 4 and 20 characters."
+        );
+
+        continue;
+      }
+      if (!teamName.match(/^[a-zA-Z0-9]+$/)) {
+        teamName = await invalidTeamNameScreen(
+          "Preferred names must only contain alphanumeric characters and spaces."
+        );
+        continue;
+      }
+      if (
+        (await sql`select * from teams where team_name = ${teamName}`).length >
+        0
+      ) {
+        teamName = await invalidTeamNameScreen(
+          "Your preferred name was already taken in our system. Please use another preferred name."
+        );
+        continue;
+      }
+      console.log(
+        "Connecting - if you see this message for more than a few seconds, the connection failed."
+      );
+      let msg = getPromiseFromEvent(wss, "message");
+      wss.send(`create ${teamName}`);
+      //console.log("a");
+      msg = await (await msg).data;
+      //console.log("msg:", msg);
+      msg = msg.toString();
+      if (msg == "team_create_success") {
+        console.log(
+          "Team token (can be used to reconnect if disconnected):",
+          jwt.sign({ k: 0, t: teamName }, SECRETTOKEN)
+        );
+        break;
+      } else {
+        teamName = await invalidTeamNameScreen(
+          "Your preferred name was already taken in our system. Please use another preferred name."
+        );
+        continue;
+      }
+    }
+
+    // create in db
+    await sql`insert into teams (
+          team_name, member1_name, member2_name, member1_id, member2_id, member1_dis, member2_dis
+        ) values (
+          ${teamName}, ${names["Member #1 Name"]}, ${names["Member #2 Name"]},
+          ${names["Member #1 UID"]}, ${names["Member #2 UID"]},
+          ${names["Member #1 Discussion"]}, ${names["Member #2 Discussion"]}
+        )`;
+
+    if (names["Member #3 Name"]) {
+      await sql`update teams set member3_name = ${names["Member #3 Name"]}, member3_id = ${names["Member #3 UID"]}, member3_dis = ${names["Member #3 Discussion"]} where team_name = ${teamName}`;
     }
   }
 
-  // create in db
-  await sql`insert into teams (
-        team_name, member1_name, member2_name, member1_id, member2_id, member1_dis, member2_dis
-      ) values (
-        ${teamName}, ${names["Member #1 Name"]}, ${names["Member #2 Name"]},
-        ${names["Member #1 UID"]}, ${names["Member #2 UID"]},
-        ${names["Member #1 Discussion"]}, ${names["Member #2 Discussion"]}
-      )`;
-
-  if (names["Member #3 Name"]) {
-    await sql`update teams set member3_name = ${names["Member #3 Name"]}, member3_id = ${names["Member #3 UID"]}, member3_dis = ${names["Member #3 Discussion"]} where team_name = ${teamName}`;
-  }
-
-  let i = 0;
   let correct = false;
   let totalScore = 0;
+
+  if (rejoinRes.startsWith("Yes")) {
+    totalScore = parseInt(
+      (
+        await sql`select sum(points) as pts from submissions where team_name = ${teamName}`
+      )[0]["pts"]
+    );
+  }
 
   createTitleScreen(
     "Please hold",
@@ -695,7 +755,6 @@ async function main() {
     if (msgType == "start") {
       correct = false;
       const question = QUESTIONS[Number(content)];
-      i++;
       const txt = fs.readFileSync("texts/" + question.file).toString();
       const start = new Date();
       const resp = await createTitleScreen(
@@ -722,13 +781,20 @@ async function main() {
         }
       } else {
         if (question.options[question.correct] == resp) {
-          wss.send(`answer ${+score}`);
           totalScore += score;
           correct = true;
         }
       }
 
-      if (!correct) wss.send("answer 0");
+      if (correct) {
+        await sql`insert into submissions (team_name, question, points, solved) values 
+        (${teamName}, ${Number(content)}, ${score}, "t")`;
+        wss.send(`answer ${+score}`);
+      } else {
+        await sql`insert into submissions (team_name, question, points, solved) values 
+        (${teamName}, ${Number(content)}, 0, "f")`;
+        wss.send("answer 0");
+      }
 
       createTitleScreen(
         "Received",
