@@ -14,7 +14,6 @@ fi
 # Remove everything
 docker stop `docker ps -qa`
 docker rm `docker ps -qa`
-docker network rm `docker network ls -q`
 
 # Start networks w/ compose under different project names
 for i in $(seq 1 $n); do
