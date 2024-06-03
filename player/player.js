@@ -36,7 +36,7 @@ async function waitForOpenSocket(socket) {
   });
 }
 
-const SECRETTOKEN = process.env["JWT_TOKEN"];
+const SECRETTOKEN = process.env["JWT_TOKEN"] + process.env["INSTANCE_NUM"];
 
 const WELCOME = fs.readFileSync("texts/boelter.txt").toString();
 const INSTRUCTIONS = fs.readFileSync("texts/instructions.txt").toString();

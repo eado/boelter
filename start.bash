@@ -22,6 +22,7 @@ for i in $(seq 1 $n); do
     export SERVER_PORT=2${suffix}2
     export SERVER_HTTP_PORT=2${suffix}1
     export PLAYER_PORT=2${suffix}0
+    export INSTANCE_NUM=$suffix
     docker-compose -p ${suffix} up --build -d 
 done
 
