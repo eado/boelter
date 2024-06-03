@@ -9,6 +9,12 @@ A mini pop quiz game for CS 33, originally created by https://github.com/eado fo
 
 ## Setup
 
+Make a copy of `.env.example` into `.env.`. Set a value for each:
+
+- `JWT_TOKEN` should be some very long random secret string.
+- `POSTGRES_*` self explanatory, just pick something
+- `ADMIN_PASSWORD` password needed to login to the host instance. User password is just `desk`
+
 ### One game
 
 Run `docker compose up`. Players connect to ports 2222 via ssh, and the game host connects to port 2223 and can see the website at port 8080.

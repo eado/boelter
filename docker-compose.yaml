@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:latest
+    restart: always
     env_file:
       - .env
     environment:
@@ -12,6 +13,7 @@ services:
     build:
       context: .
       dockerfile: player/Dockerfile
+    restart: always
     env_file:
       - .env
     environment:
@@ -21,6 +23,7 @@ services:
     depends_on:
       - db
   server:
+    restart: always
     build:
       context: .
       dockerfile: progress/Dockerfile
