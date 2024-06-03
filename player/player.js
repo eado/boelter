@@ -698,8 +698,9 @@ async function main() {
       msg = msg.toString();
       if (msg == "team_create_success") {
         console.log(
-          "Team token (can be used to reconnect if disconnected):",
+          "\n\n\n\n\n\nTeam token (can be used to reconnect if disconnected):",
           jwt.sign({ k: 0, t: teamName }, SECRETTOKEN),
+          "\n\n\n\n\n\n\n",
         );
         break;
       } else {

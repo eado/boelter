@@ -26,4 +26,4 @@ COPY questions/questions.json .
 COPY wait-stop-ssh.sh .
 RUN chmod +x wait-stop-ssh.sh
 
-CMD ["sh", "-c", "rc-status; rc-service sshd start; ./wait-stop-ssh.sh"]
+CMD ["sh", "-c", "echo ' ' >> .env; echo INSTANCE_NUM=$INSTANCE_NUM >> .env; rc-status; rc-service sshd start; ./wait-stop-ssh.sh"]
