@@ -1,6 +1,14 @@
 {
   "dependencies": {
     "blessed": "^0.1.81",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "postgres": "^3.4.4",
     "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.3.0",
+    "eslint": "^9.3.0",
+    "globals": "^15.3.0"
   }
 }

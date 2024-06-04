@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - INSTANCE_NUM=${INSTANCE_NUM:-1}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  player:
+    build:
+      context: .
+      dockerfile: player/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - INSTANCE_NUM=${INSTANCE_NUM:-1}
+    ports:
+      - "${PLAYER_PORT:-2222}:22"
+    depends_on:
+      - db
+  server:
+    restart: always
+    build:
+      context: .
+      dockerfile: progress/Dockerfile
+      args:
+        - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    env_file:
+      - .env
+    environment:
+      - INSTANCE_NUM=${INSTANCE_NUM:-1}
+    ports:
+      - "${SERVER_PORT:-2223}:22"
+      - "${SERVER_HTTP_PORT:-8080}:8080"
+    depends_on:
+      - db
+
+volumes:
+  dbdata:
