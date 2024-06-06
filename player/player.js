@@ -194,6 +194,7 @@ function createTitleScreen(
   time = 0,
   istextBox = false,
   sure = false,
+  leftalign = false,
 ) {
   return new Promise((res, _) => {
     let ans = "";
@@ -221,7 +222,7 @@ function createTitleScreen(
           fg: "#f0f0f0",
         },
       },
-      align: "center",
+      align: leftalign ? "left" : "center",
       valign: "middle",
     });
 
@@ -672,7 +673,7 @@ async function main() {
 
         continue;
       }
-      if (!teamName.match(/^[a-zA-Z0-9]+$/)) {
+      if (!teamName.match(/^[a-zA-Z0-9 ]+$/)) {
         teamName = await invalidTeamNameScreen(
           "Preferred names must only contain alphanumeric characters and spaces.",
         );
@@ -765,10 +766,11 @@ async function main() {
         question.time,
         question.text,
         true,
+        true,
       );
       const end = new Date();
       let score = Math.max(
-        0,
+        question.time,
         question.time +
           question.time -
           Math.round((end.getTime() - start.getTime()) / 1000),
